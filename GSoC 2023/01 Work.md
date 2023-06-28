@@ -3,3 +3,5 @@
 •	Decided to start working in the pendulum experiment first, establish connection with the ESP8266 and 
 •	Discussed for some changes in sensor selection for the first experiment. Instead of the angle sensor that was recomended we will use an accelerometer.
 ![ESP8266-NodeMCU](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/ffcb318e-4edf-4890-b3a2-679e943b5a41)
+
+Found tutorials and instructions for connecting the the board to thinksboard
