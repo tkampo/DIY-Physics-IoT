@@ -5,3 +5,10 @@
 ![ESP8266-NodeMCU](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/ffcb318e-4edf-4890-b3a2-679e943b5a41)
 
 Found tutorials and instructions for connecting the the board to thinksboard
+Created the first Dashboard in ThingsBoard :(https://demo.thingsboard.io/dashboards/178ba610-15a1-11ee-ab78-536eaffa7025)
+![image](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/62f87dcd-f9bf-4483-b2a9-c82db99431d9)
+
+
+The result of the arduino serial board showing the message when the switch is turned on and off
+
+![image](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/97074569-1da3-400d-8001-c5a033d54763)
