@@ -1,103 +1,120 @@
-#include "ThingsBoard.h"
+#include <ArduinoJson.h>// Use version 5.8.0
+#include <PubSubClient.h>// Use version 2.6 
 #include <ESP8266WiFi.h>
 
 
-#define WIFI_AP             "******"   // name of your wifi
-#define WIFI_PASSWORD       "******" // password of your wifi
+#define WIFI_AP             "***"//WiFi name
+#define WIFI_PASSWORD       "***"//iFi Code
 
-// See https://thingsboard.io/docs/getting-started-guides/helloworld/
-// to understand how to obtain an access token
-#define TOKEN               "WJUX1wvIrh54SgHj4huQ"  // enter access token of your ThingsBoard Device
-#define THINGSBOARD_SERVER  "demo.thingsboard.io"
+#define TOKEN               "h5t7oicry4kll98904hv"
 
-// Baud rate for debug serial
-#define SERIAL_DEBUG_BAUD   115200
-int var = 1;
+#define GPIO0 0
+//#define GPIO2 2
 
-// Initialize ThingsBoard client
-WiFiClient espClient;
-// Initialize ThingsBoard instance
-ThingsBoard tb(espClient);
-// the Wifi radio's status
+#define GPIO0_PIN 16
+//#define GPIO2_PIN 5
+
+char thingsboardServer[] = "demo.thingsboard.io";
+
+WiFiClient wifiClient;
+
+PubSubClient client(wifiClient);
+
 int status = WL_IDLE_STATUS;
 
+// We assume that all GPIOs are LOW
+boolean gpioState[] = {false,false};
+
 void setup() {
-  // initialize serial for debugging
-  Serial.begin(SERIAL_DEBUG_BAUD);
-  WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+  Serial.begin(9600);
+  // Set output mode for all GPIO pins
+  pinMode(GPIO0, OUTPUT);
+ // pinMode(GPIO2, OUTPUT);
+  delay(10);
   InitWiFi();
+  client.setServer( thingsboardServer, 1883 );
+  client.setCallback(on_message);
 }
-
-bool subscribed = false;
-
-RPC_Response ts1(const RPC_Data &data)
-{
-  Serial.println("Received the set switch method 4!");
-  char params[10];
-  serializeJson(data, params);
-  //Serial.println(params);
-  String _params = params;
-  if (_params == "true") {
-    Serial.println("Toggle Switch - 1 => On");
-
-  }
-  else  if (_params == "false")  {
-    Serial.println("Toggle Switch - 1 => Off");
-  }
-}
-
-
-const size_t callbacks_size = 1;
-RPC_Callback callbacks[callbacks_size] = {
-  { "getValue_1",         ts1 }   // enter the name of your switch variable inside the string
-
-};
 
 void loop() {
-  delay(1000);
-
-  if (WiFi.status() != WL_CONNECTED) {
+  if ( !client.connected() ) {
     reconnect();
   }
 
-  if (!tb.connected()) {
-    subscribed = false;
-    // Connect to the ThingsBoard
-    Serial.print("Connecting to: ");
-    Serial.print(THINGSBOARD_SERVER);
-    Serial.print(" with token ");
-    Serial.println(TOKEN);
-    if (!tb.connect(THINGSBOARD_SERVER, TOKEN)) {
-      Serial.println("Failed to connect");
-      return;
-    }
-  }
-
-  if (!subscribed) {
-    Serial.println("Subscribing for RPC...");
-
-    // Perform a subscription. All consequent data processing will happen in
-    // processTemperatureChange() and processSwitchChange() functions,
-    // as denoted by callbacks[] array.
-    if (!tb.RPC_Subscribe(callbacks, callbacks_size)) {
-      Serial.println("Failed to subscribe for RPC");
-      return;
-    }
-
-    Serial.println("Subscribe done");
-    subscribed = true;
-  }
-
-  //Serial.println("Sending data...");
-
-  //tb.sendTelemetryInt("temperature", var);
-  //var ++;
-
-  tb.loop();
+  client.loop();
 }
 
-void InitWiFi()
-{
+// The callback for when a PUBLISH message is received from the server.
+void on_message(const char* topic, byte* payload, unsigned int length) {
+
+  Serial.println("On message");
+
+  char json[length + 1];
+  strncpy (json, (char*)payload, length);
+  json[length] = '\0';
+
+  Serial.print("Topic: ");
+  Serial.println(topic);
+  Serial.print("Message: ");
+  Serial.println(json);
+
+  // Decode JSON request
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& data = jsonBuffer.parseObject((char*)json);
+
+  if (!data.success())
+  {
+    Serial.println("parseObject() failed");
+    return;
+  }
+
+  // Check request method
+  String methodName = String((const char*)data["method"]);
+
+  if (methodName.equals("getGpioStatus")) {
+    // Reply with GPIO status
+    String responseTopic = String(topic);
+    responseTopic.replace("request", "response");
+    client.publish(responseTopic.c_str(), get_gpio_status().c_str());
+  } else if (methodName.equals("setGpioStatus")) {
+    // Update GPIO status and reply
+    set_gpio_status(data["params"]["pin"], data["params"]["enabled"]);
+    String responseTopic = String(topic);
+    responseTopic.replace("request", "response");
+    client.publish(responseTopic.c_str(), get_gpio_status().c_str());
+    client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
+  }
+}
+
+String get_gpio_status() {
+  // Prepare gpios JSON payload string
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& data = jsonBuffer.createObject();
+  data[String(GPIO0_PIN)] = gpioState[0] ? true : false;
+//  data[String(GPIO2_PIN)] = gpioState[1] ? true : false;
+  char payload[256];
+  data.printTo(payload, sizeof(payload));
+  String strPayload = String(payload);
+  Serial.print("Get gpio status: ");
+  Serial.println(strPayload);
+  return strPayload;
+}
+
+void set_gpio_status(int pin, boolean enabled) {
+  if (pin == GPIO0_PIN) {
+    // Output GPIOs state
+    digitalWrite(GPIO0, enabled ? HIGH : LOW);
+    // Update GPIOs state
+    gpioState[0] = enabled;
+  } //else if (pin == GPIO2_PIN) {
+    // Output GPIOs state
+    //digitalWrite(GPIO2, enabled ? HIGH : LOW);
+    // Update GPIOs state
+   // gpioState[1] = enabled;
+ // }
+}
+
+void InitWiFi() {
   Serial.println("Connecting to AP ...");
   // attempt to connect to WiFi network
 
@@ -109,15 +126,34 @@ void InitWiFi()
   Serial.println("Connected to AP");
 }
 
+
 void reconnect() {
   // Loop until we're reconnected
-  status = WiFi.status();
-  if ( status != WL_CONNECTED) {
-    WiFi.begin(WIFI_AP, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
+  while (!client.connected()) {
+    status = WiFi.status();
+    if ( status != WL_CONNECTED) {
+      WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+      while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+      }
+      Serial.println("Connected to AP");
     }
-    Serial.println("Connected to AP");
+    Serial.print("Connecting to ThingsBoard node ...");
+    // Attempt to connect (clientId, username, password)
+    if ( client.connect("ESP8266 Device", TOKEN, NULL) ) {
+      Serial.println( "[DONE]" );
+      // Subscribing to receive RPC requests
+      client.subscribe("v1/devices/me/rpc/request/+");
+      // Sending current GPIO status
+      Serial.println("Sending current GPIO status ...");
+      client.publish("v1/devices/me/attributes", get_gpio_status().c_str());
+    } else {
+      Serial.print( "[FAILED] [ rc = " );
+      Serial.print( client.state() );
+      Serial.println( " : retrying in 5 seconds]" );
+      // Wait 5 seconds before retrying
+      delay( 5000 );
+    }
   }
 }
