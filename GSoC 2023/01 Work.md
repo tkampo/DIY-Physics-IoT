@@ -13,3 +13,5 @@ Created the first Dashboard in ThingsBoard https://demo.thingsboard.io/dashboard
 The result of the arduino serial board showing the message when the switch is turned on and off
 
 ![image](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/97074569-1da3-400d-8001-c5a033d54763)
+
+Fixed some issues with the Dasboard at thingsboard 
