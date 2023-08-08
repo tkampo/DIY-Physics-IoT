@@ -14,7 +14,7 @@ The result of the arduino serial board showing the message when the switch is tu
 
 ![image](https://github.com/tkampo/DIY-Physics-IoT/assets/132980261/97074569-1da3-400d-8001-c5a033d54763)
 
-
+Changed some stuff in the code 
 Fixed some issues with the Dasboard at thingsboard 
 
 Made a very basic box for NodeMCU 
