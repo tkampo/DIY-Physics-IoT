@@ -1,54 +1,33 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-/***************************************************
-  Adafruit MQTT Library ESP8266 Example
 
-  Must use ESP8266 Arduino from:
-    https://github.com/esp8266/Arduino
-
-  Works great with Adafruit's Huzzah ESP board & Feather
-  ----> https://www.adafruit.com/product/2471
-  ----> https://www.adafruit.com/products/2821
-
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-
-  Written by Tony DiCola for Adafruit Industries.
-  
-  Modified By: Tech Notebook
-  https://www.youtube.com/channel/UCgF78i8PUYdKLgjpyeCJ7Qg
-  
-  MIT license, all text above must be included in any redistribution
- ****************************************************/
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
-/************************* WiFi Access Point *********************************/
+
 
 #define WLAN_SSID       "...your SSID..."
 #define WLAN_PASS       "...your password..."
 
-/************************* Adafruit.io Setup *********************************/
+
 
 #define AIO_SERVER      "IP ADDR"
 #define AIO_SERVERPORT  1883                   // use 8883 for SSL
 #define AIO_USERNAME    ""
 #define AIO_KEY         ""
 
-/************ Global State (you don't need to change this!) ******************/
 
 // Create an ESP8266 WiFiClient class to connect to the MQTT server.
 WiFiClient client;
 
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-/****************************** Feeds ***************************************/
+
 Adafruit_MQTT_Publish temperature = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
 Adafruit_MQTT_Publish humidity = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
-/*************************** Sketch Code ************************************/
+
 
 #define DHTPIN 13
 #define DHTTYPE DHT11
