@@ -20,3 +20,4 @@ Fixed some issues with the Dasboard at thingsboard
 Made a very basic box for NodeMCU 
 https://cad.onshape.com/documents/1b1a7a5a9d3f561032fccc5b/w/11d0f2ce9c097eebbf494c14/e/24195683789451ed28d94671
 Ordered MPU-6565 for angle measurement
+Working the code for angle measure
