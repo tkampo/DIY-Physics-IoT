@@ -1,18 +1,10 @@
 #include<Wire.h>
-#define BLYNK_PRINT Serial
-#include <Blynk.h>
-#include <ESP8266WiFi.h>
-#include <BlynkSimpleEsp8266.h>
- 
-char auth[] = "LHvT-tj0Uoy9xXfjGshKOyRk_cVYZhZd";       // You should get Auth Token in the Blynk App.
-char ssid[] = "Alsan";                       // Your WiFi credentials.
-char pass[] = "1234567890";
  
 const int MPU_addr=0x68;
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
  
-int minVal=265;
-int maxVal=402;
+int minVal=0;
+int maxVal=360;
  
 double x;
 double y;
@@ -25,10 +17,8 @@ Wire.write(0x6B);
 Wire.write(0);
 Wire.endTransmission(true);
 Serial.begin(9600);
-Blynk.begin(auth, ssid, pass);
- }
+}
 void loop(){
-Blynk.run();
 Wire.beginTransmission(MPU_addr);
 Wire.write(0x3B);
 Wire.endTransmission(false);
@@ -53,10 +43,5 @@ Serial.println(y);
 Serial.print("AngleZ= ");
 Serial.println(z);
 Serial.println("-----------------------------------------");
- 
-Blynk.virtualWrite(V2, x);
-Blynk.virtualWrite(V3, y);
-Blynk.virtualWrite(V4, z);
- 
-delay(1000);
+delay(400);
 }
