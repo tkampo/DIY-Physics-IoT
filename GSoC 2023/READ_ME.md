@@ -2,4 +2,4 @@
 
 **In this repository you can also find helpful photo that contains the PINOUT diagram of the NodeMCU ESP8266 board and another photo that contains information on which pins could create problems while booting up the microcontroller.** 
 
-**NOTE: The interface of thingsboard comunity edition may change after this work is complete. This project was completed in October 2023**
+ *NOTE: The interface of thingsboard comunity edition may change after this work is complete. This project was completed in October 2023*
