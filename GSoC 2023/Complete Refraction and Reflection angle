@@ -30,7 +30,7 @@ void setup() {
   Serial.begin(SERIAL_DEBUG_BAUD);
   WiFi.begin(WIFI_AP, WIFI_PASSWORD);
   InitWiFi();
-  servo1.attach(2,544,3000); //servo.attach(pin, min, max)
+  servo1.attach(2,544,3000); //servo.attach(pin, min, max) pin2 = D4
   servo1.write(0);
   delay(1000);
 }
